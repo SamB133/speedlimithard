@@ -1,5 +1,3 @@
---made by jamy for FAFO-RP
-
 --speed limit for all cars when set, also show the max speed on the screen
 
 local speedLimits = {
@@ -26,8 +24,9 @@ local speedLimits = {
     [20] = 100.0, -- Commercial
     [21] = 100.0, -- Trains
 }
-local speedLimitsByName = { -- add the speed limits for specific vehicles here
-    ["fxxk"] = 135.0, -- fxxk
+
+local speedLimitsByName = { -- add the speed limits for specific vehicles here, using spawn code
+    ["test"] = 135.0,
 }
 
 Citizen.CreateThread(function()
@@ -39,15 +38,18 @@ Citizen.CreateThread(function()
             local speed = GetEntitySpeed(vehicle) * 2.236936
             local category = GetVehicleClass(vehicle)
             local limit = speedLimits[category]
-            local name = GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))
-            local limitByName = speedLimitsByName[name]
-            if limitByName then
-                limit = limitByName
+            local model = GetEntityModel(vehicle)
+            -- Check for name-based override using spawn codes
+            for name, limitOverride in pairs(speedLimitsByName) do
+                if model == GetHashKey(name) then
+                    limit = limitOverride
+                    break
+                end
             end
             if limit and speed > limit then
                 SetEntityMaxSpeed(vehicle, limit * 0.44704) -- convert mph to m/s
             else
-                SetEntityMaxSpeed(vehicle, 999.0) -- set the default maximum speed of the vehicle here
+                SetEntityMaxSpeed(vehicle, 200.0) -- set the default maximum speed of the vehicle here
             end
         end
     end
